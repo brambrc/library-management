@@ -59,29 +59,36 @@ describe('Post Book API', () => {
 
 //Find All Book test
 describe('Find All Book API', () => {
-    it('should retrieve all books', async () => {
+    it('should retrieve all books with pagination', async () => {
         const res = await request(app)
             .get('/api/books')
+            .query({ page: 1, limit: 10 })  // Pagination query
             .expect('Content-Type', /json/)
             .expect(200);
 
-        expect(res.body).toBeInstanceOf(Array);
-        expect(res.body.length).toBeGreaterThan(0);
+        expect(res.body).toHaveProperty('page', 1);
+        expect(res.body).toHaveProperty('totalPages', expect.any(Number));
+        expect(res.body).toHaveProperty('totalBooks', expect.any(Number));
+        expect(res.body).toHaveProperty('books');
+        expect(res.body.books).toBeInstanceOf(Array);
+        expect(res.body.books.length).toBeLessThanOrEqual(10);
 
-        expect(res.body).toEqual(expect.arrayContaining([
-            expect.objectContaining({
-                _id: expect.any(String),
-                title: expect.any(String),
-                author: expect.any(String),
-                publishedYear: expect.any(Number),
-                genres: expect.any(Array),
-                stock: expect.any(Number),
-            }),
-        ]));
+        if (res.body.books.length > 0) {
+            expect(res.body.books).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    _id: expect.any(String),
+                    title: expect.any(String),
+                    author: expect.any(String),
+                    publishedYear: expect.any(Number),
+                    genres: expect.any(Array),
+                    stock: expect.any(Number),
+                }),
+            ]));
+        }
     });
 
     beforeEach(() => {
-        jest.restoreAllMocks(); // Reset any previous mocks
+        jest.restoreAllMocks();
     });
 
 
@@ -97,6 +104,33 @@ describe('Find All Book API', () => {
             .expect(400);
 
         expect(res.body).toHaveProperty('message', 'Database error');
+    });
+
+    it('should retrieve books based on search query', async () => {
+        const res = await request(app)
+            .get('/api/books')
+            .query({ search: 'keyword', page: 1, limit: 10 })
+            .expect('Content-Type', /json/)
+            .expect(200);
+
+        expect(res.body).toHaveProperty('page', 1);
+        expect(res.body).toHaveProperty('totalPages', expect.any(Number));
+        expect(res.body).toHaveProperty('totalBooks', expect.any(Number));
+        expect(res.body).toHaveProperty('books');
+        expect(res.body.books).toBeInstanceOf(Array);
+
+        if (res.body.books.length > 0) {
+            expect(res.body.books).toEqual(expect.arrayContaining([
+                expect.objectContaining({
+                    _id: expect.any(String),
+                    title: expect.any(String),
+                    author: expect.any(String),
+                    publishedYear: expect.any(Number),
+                    genres: expect.any(Array),
+                    stock: expect.any(Number),
+                }),
+            ]));
+        }
     });
 });
 

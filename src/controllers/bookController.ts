@@ -15,8 +15,32 @@ export const createBook = async (req: Request, res: Response) => {
 // Get All Books
 export const getAllBooks = async (req: Request, res: Response) => {
     try {
-        const books = await Book.find().lean();
-        res.status(200).json(books);
+        const { search, page = 1, limit = 10 } = req.query;
+
+        const query: any = {};
+
+        if (search) {
+            query.$or = [
+                { title: { $regex: search, $options: 'i' } },
+                { author: { $regex: search, $options: 'i' } },
+                { genres: { $regex: search, $options: 'i' } }
+            ];
+        }
+
+        const books = await Book.find(query)
+            .limit(Number(limit))
+            .skip((Number(page) - 1) * Number(limit))
+            .lean();
+
+        const totalBooks = await Book.countDocuments(query);
+        const totalPages = Math.ceil(totalBooks / Number(limit));
+
+        res.status(200).json({
+            page: Number(page),
+            totalPages,
+            totalBooks,
+            books,
+        });
     } catch (error: any) {
         res.status(400).json({ message: error.message });
     }

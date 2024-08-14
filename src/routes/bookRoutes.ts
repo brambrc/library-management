@@ -31,17 +31,47 @@ router.post('/books', createBook);
  * @swagger
  * /books:
  *   get:
- *     summary: Get all books
+ *     summary: Get all books with pagination and search
  *     tags: [Books]
+ *     parameters:
+ *       - in: query
+ *         name: search
+ *         schema:
+ *           type: string
+ *         required: false
+ *         description: Search keyword for title, author, or genres
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *         required: false
+ *         description: Page number
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 10
+ *         required: false
+ *         description: Number of books per page
  *     responses:
  *       200:
- *         description: A list of books
+ *         description: A paginated list of books
  *         content:
  *           application/json:
  *             schema:
- *               type: array
- *               items:
- *                 $ref: '#/components/schemas/Book'
+ *               type: object
+ *               properties:
+ *                 page:
+ *                   type: integer
+ *                 totalPages:
+ *                   type: integer
+ *                 totalBooks:
+ *                   type: integer
+ *                 books:
+ *                   type: array
+ *                   items:
+ *                     $ref: '#/components/schemas/Book'
  *       400:
  *         description: Bad request
  */
