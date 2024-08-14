@@ -15,7 +15,7 @@ export const createBook = async (req: Request, res: Response) => {
 // Get All Books
 export const getAllBooks = async (req: Request, res: Response) => {
     try {
-        const books = await Book.find();
+        const books = await Book.find().lean();
         res.status(200).json(books);
     } catch (error: any) {
         res.status(400).json({ message: error.message });
@@ -25,7 +25,7 @@ export const getAllBooks = async (req: Request, res: Response) => {
 // Get Book by ID
 export const getBookById = async (req: Request, res: Response) => {
     try {
-        const book = await Book.findById(req.params.id);
+        const book = await Book.findById(req.params.id).lean();
         if (!book) return res.status(404).json({ message: 'Book not found' });
         res.status(200).json(book);
     } catch (error: any) {
@@ -36,7 +36,7 @@ export const getBookById = async (req: Request, res: Response) => {
 // Update Book Information
 export const updateBook = async (req: Request, res: Response) => {
     try {
-        const updatedBook = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true });
+        const updatedBook = await Book.findByIdAndUpdate(req.params.id, req.body, { new: true }).lean();
         if (!updatedBook) return res.status(404).json({ message: 'Book not found' });
         res.status(200).json(updatedBook);
     } catch (error: any) {
@@ -47,7 +47,7 @@ export const updateBook = async (req: Request, res: Response) => {
 // Delete a Book
 export const deleteBook = async (req: Request, res: Response) => {
     try {
-        const deletedBook = await Book.findByIdAndDelete(req.params.id);
+        const deletedBook = await Book.findByIdAndDelete(req.params.id).lean();
         if (!deletedBook) return res.status(404).json({ message: 'Book not found' });
         res.status(200).json({ message: 'Book deleted successfully' });
     } catch (error: any) {
